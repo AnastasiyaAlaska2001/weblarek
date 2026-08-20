@@ -14,6 +14,13 @@ export type TOrderResponse = {
   total: number;
 };
 
+export interface IErrors {
+  payment?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface IApi {
   get<T extends object>(uri: string): Promise<T>;
   post<T extends object>(
