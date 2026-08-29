@@ -1,22 +1,16 @@
-/* Константа для получения полного пути для сервера. Для выполнения запроса 
-необходимо к API_URL добавить только ендпоинт. */
-export const API_URL = `${import.meta.env.VITE_API_ORIGIN}/api/weblarek`; 
+import { ILotCategory } from '../types';
 
-/* Константа для формирования полного пути к изображениям карточек. 
-Для получения полной ссылки на картинку необходимо к CDN_URL добавить только название файла изображения,
-которое хранится в объекте товара. */
-export const CDN_URL = `${import.meta.env.VITE_API_ORIGIN}/content/weblarek`;
+const API_URL = `https://larek-api.nomoreparties.co/api/weblarek`;
+const CDN_URL = `https://larek-api.nomoreparties.co/content/weblarek`;
 
-/* Константа соответствий категорий товара модификаторам, используемым для отображения фона категории. */
-export const categoryMap = {
-  'софт-скил': 'card__category_soft',
-  'хард-скил': 'card__category_hard',
-  'кнопка': 'card__category_button',
-  'дополнительное': 'card__category_additional',
-  'другое': 'card__category_other',
+const settings = {};
+
+const CATEGOTY_MAP: Record<ILotCategory, string> = {
+	'софт-скил': 'soft',
+	'другое': 'other',
+	'дополнительное': 'additional',
+	'кнопка': 'button',
+	'хард-скил': 'hard',
 };
 
-export const settings = {
-
-};
-
+export { API_URL, CDN_URL, CATEGOTY_MAP, settings };
