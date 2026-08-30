@@ -1,112 +1,108 @@
-import { ILotCategory } from '../../types';
-import { CATEGOTY_MAP } from '../../utils/constants';
-import { ensureElement, formatSinaps } from '../../utils/utils';
-import { Component } from '../base/Component';
-import { IEvents } from '../base/events';
+import { Component } from "../base/Component";
+import { categoryMap } from "../../utils/constants";
 
-interface ICardActions {
-	onClick: (event: MouseEvent) => void;
+export class Card extends Component<any> {
+  protected titleElement: HTMLElement | null = null;
+  protected priceElement: HTMLElement | null = null;
+  protected categoryElement: HTMLElement | null = null;
+  protected imageElement: HTMLImageElement | null = null;
+  protected buyButton: HTMLButtonElement | null = null;
+
+  constructor(container: HTMLElement) {
+    super(container);
+
+    // Инициализируем ссылки на внутренние элементы карточки
+    this.titleElement = container.querySelector(".card__title");
+    this.priceElement = container.querySelector(".card__price");
+    this.categoryElement = container.querySelector(".card__category");
+    this.imageElement = container.querySelector(
+      ".card__image",
+    ) as HTMLImageElement;
+    this.buyButton = container.querySelector(
+      ".card__button",
+    ) as HTMLButtonElement;
+  }
+
+  set title(value: string) {
+    if (this.titleElement) {
+      this.titleElement.textContent = value;
+    }
+  }
+
+  set price(value: number | null) {
+    if (!this.priceElement) return;
+
+    if (value === null || value === undefined) {
+      this.priceElement.textContent = "Бесценно";
+      this.priceElement.classList.add("card__price--unavailable");
+      this.priceElement.classList.remove("card__price--available");
+    } else {
+      this.priceElement.textContent = `${value} синапсов`;
+      this.priceElement.classList.add("card__price--available");
+      this.priceElement.classList.remove("card__price--unavailable");
+    }
+  }
+
+  set category(value: string) {
+    if (!this.categoryElement) return;
+
+    // Сбрасываем модификаторы перед установкой нового
+    this.categoryElement.className = "card__category";
+
+    const modifier = categoryMap[value as keyof typeof categoryMap];
+    if (modifier) {
+      this.categoryElement.classList.add(modifier);
+    }
+
+    this.categoryElement.textContent = value;
+  }
+
+  set image(value: string) {
+    if (!this.imageElement) return;
+
+    this.imageElement.src = "";
+    this.imageElement.alt = "Товар";
+
+    this.imageElement.src = value;
+  }
+
+  set text(value: string) {
+    const element = this.container.querySelector(".card__text");
+    if (element) {
+      element.textContent = value;
+    }
+  }
+
+  render(
+    data?: Partial<{
+      title: string;
+      price: number | null;
+      category: string;
+      image: string;
+      text: string;
+    }>,
+  ): HTMLElement {
+    if (!data) {
+      return this.container;
+    }
+
+    // Обновляем только те поля, которые переданы в данных
+    if ("title" in data && data.title !== undefined) {
+      this.title = data.title;
+    }
+    if ("price" in data && data.price !== undefined) {
+      this.price = data.price;
+    }
+    if ("category" in data && data.category !== undefined) {
+      this.category = data.category;
+    }
+    if ("image" in data && data.image !== undefined) {
+      this.image = data.image;
+    }
+    if ("text" in data && (data as any).text !== undefined) {
+      this.text = (data as any).text;
+    }
+
+    return this.container;
+  }
 }
-
-/**
- * Интерфейс карточки
- * @property { string } category - категория лота
- * @property { string } title - заголовок лота
- * @property { string } image - полный путь до файла картинки лота
- * @property { number } price - цена лота
- * @property { string } description - описание лота
- * @property { string } button - текст на кнопки добавления лота в заказ
- */
-interface ICard {
-	category: string; // категория лота
-	title: string; // заголовок лота
-	image: string; // полный путь до файла картинки лота
-	price: number; // цена лота
-	description: string; // описание лота
-	button?: string; // текст на кнопки добавления лота в заказ
-}
-
-/**
- * View-класс карточки
- */
-class Card extends Component<ICard> {
-	private _category: HTMLElement;
-	private _title: HTMLElement;
-	private _image?: HTMLImageElement;
-	private _description?: HTMLElement;
-	private _button?: HTMLButtonElement;
-	private _price?: HTMLElement;
-
-	/**
-	 * Базовый конструктор
-	 * @constructor
-	 * @param { string } blockName - название блока
-	 * @param { HTMLElement } container - объект контейнера (темплейта)
-	 * @param { IEvents } events - брокер событий
-	 * @param { ICardActions } actions - доступные события для привязки
-	 */
-	constructor(
-		protected blockName: string,
-		container: HTMLElement,
-		events: IEvents,
-		actions?: ICardActions
-	) {
-		super(container, events);
-
-		// Используемые элементы у карточки
-		this._category = ensureElement<HTMLElement>(
-			`.${blockName}__category`,
-			container
-		);
-		this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-		this._image = ensureElement<HTMLImageElement>(
-			`.${blockName}__image`,
-			container
-		);
-		this._button = container.querySelector(`.${blockName}__button`);
-		this._description = container.querySelector(`.${blockName}__text`);
-		this._price = container.querySelector(`.${blockName}__price`);
-
-		// Подвязываем события для внутренней кнопки или для все карточки
-		if (actions?.onClick) {
-			if (this._button) {
-				this._button.addEventListener('click', actions.onClick);
-			} else {
-				container.addEventListener('click', actions.onClick);
-			}
-		}
-	}
-
-	set category(value: ILotCategory) {
-		this.setText(this._category, value);
-
-		this._category.className = '';
-		const mainClass = `${this.blockName}__category`;
-		const additionalClass = CATEGOTY_MAP[value];
-		this._category.classList.add(mainClass, `${mainClass}_${additionalClass}`);
-	}
-
-	set title(value: string) {
-		this.setText(this._title, value);
-	}
-
-	set image(value: string) {
-		this.setImage(this._image, value, this.title);
-	}
-
-	set description(value: string) {
-		this.setText(this._description, value);
-	}
-
-	set price(value: number) {
-		this.setText(this._price, formatSinaps(value));
-		// TODO: стоит вынести в отдельное свойство
-		this.setDisabled(this._button, value == null);
-	}
-
-	set button(value: string) {
-		this.setText(this._button, value);
-	}
-}
-
-export { Card, ICardActions };

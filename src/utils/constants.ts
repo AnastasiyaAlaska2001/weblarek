@@ -1,16 +1,17 @@
-import { ILotCategory } from '../types';
 
-const API_URL = `https://larek-api.nomoreparties.co/api/weblarek`;
-const CDN_URL = `https://larek-api.nomoreparties.co/content/weblarek`;
+export const API_URL = `${import.meta.env.VITE_API_ORIGIN}/api/weblarek`; 
+export const CDN_URL = `${import.meta.env.VITE_API_ORIGIN}/content/weblarek`;
 
-const settings = {};
-
-const CATEGOTY_MAP: Record<ILotCategory, string> = {
-	'софт-скил': 'soft',
-	'другое': 'other',
-	'дополнительное': 'additional',
-	'кнопка': 'button',
-	'хард-скил': 'hard',
+/* Константа соответствий категорий товара модификаторам, используемым для отображения фона категории. */
+export const categoryMap = {
+  'софт-скил': 'card__category_soft',
+  'хард-скил': 'card__category_hard',
+  'кнопка': 'card__category_button',
+  'дополнительное': 'card__category_additional',
+  'другое': 'card__category_other',
 };
 
-export { API_URL, CDN_URL, CATEGOTY_MAP, settings };
+export const settings = {
+
+};
+

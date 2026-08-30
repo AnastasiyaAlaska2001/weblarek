@@ -1,75 +1,74 @@
-import { Events } from '../../types';
-import { ensureElement } from '../../utils/utils';
-import { Component } from '../base/Component';
-import { IEvents } from '../base/events';
+import { Component } from "../base/Component";
 
-/**
- * Интерфейс данных модального окна
- * @property { HTMLElement } content - отображаемое содержимое
- */
 interface IModalData {
-	content: HTMLElement;
+  content: HTMLElement;
 }
 
-/**
- * View-класс модального окна
- */
-class Modal extends Component<IModalData> {
-	private _closeButton: HTMLButtonElement;
-	private _content: HTMLElement;
+export class Modal extends Component<IModalData> {
+  private readonly modalElement: HTMLElement;
+  private readonly closeButton: HTMLButtonElement;
+  private readonly contentContainer: HTMLElement;
 
-	/**
-	 * Базовый конструктор
-	 * @constructor
-	 * @param { HTMLElement } container - родительский контейнер для элементы
-	 * @param { IEvents } events - брокер событий
-	 */
-	constructor(container: HTMLElement, events: IEvents) {
-		super(container, events);
+  constructor(container: HTMLElement) {
+    super(container);
+    this.modalElement = container;
 
-		// Используемые элементы на модалке
-		this._closeButton = ensureElement<HTMLButtonElement>(
-			'.modal__close',
-			container
-		);
-		this._content = ensureElement<HTMLElement>('.modal__content', container);
+    const closeBtn = this.modalElement.querySelector(".modal__close");
+    const content = this.modalElement.querySelector(".modal__content");
 
-		// Подписываемся на клики для закрытия
-		[this._closeButton, this.container].forEach((element) => {
-			element.addEventListener('click', () => {
-				this.close();
-				this.events.emit(Events.CLOSE_MODAL);
-			});
-		});
-		this._content.addEventListener('click', (event) => event.stopPropagation());
-	}
+    if (!closeBtn || !content) {
+      throw new Error(
+        "Ошибка инициализации Modal: не найдены элементы .modal__close или .modal__content. Проверьте HTML шаблон.",
+      );
+    }
 
-	set content(value: HTMLElement) {
-		this._content.replaceChildren(value);
-	}
+    this.closeButton = closeBtn as HTMLButtonElement;
+    this.contentContainer = content as HTMLElement;
 
-	/**
-	 * Показываем модальное окно
-	 */
-	open(): void {
-		this.toggleClass(this.container, 'modal_active', true);
-		this.events.emit(Events.OPEN_MODAL);
-	}
+    this.closeButton.addEventListener("click", () => this.close());
 
-	/**
-	 * Закрываем модальное окно
-	 */
-	close(): void {
-		this.toggleClass(this.container, 'modal_active', false);
-		this.content = null;
-		this.events.emit(Events.CLOSE_MODAL);
-	}
+    this.modalElement.addEventListener("click", (e) => {
+      if (e.target === this.modalElement) {
+        this.close();
+      }
+    });
 
-	render(data: IModalData): HTMLElement {
-		super.render(data);
-		this.open();
-		return this.container;
-	}
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Escape" && this.isOpen()) {
+        this.close();
+      }
+    });
+  }
+
+  set content(value: HTMLElement) {
+    this.contentContainer.replaceChildren(value);
+  }
+
+  render(data?: Partial<IModalData>): HTMLElement {
+    const container = super.render(data);
+
+    if (data?.content) {
+      this.content = data.content;
+    }
+
+    this.open();
+
+    return container;
+  }
+
+  open(): void {
+    this.modalElement.classList.add("modal_active");
+
+    document.body.style.overflow = "hidden";
+  }
+
+  close(): void {
+    this.modalElement.classList.remove("modal_active");
+
+    document.body.style.overflow = "";
+  }
+
+  isOpen(): boolean {
+    return this.modalElement.classList.contains("modal_active");
+  }
 }
-
-export { Modal };
