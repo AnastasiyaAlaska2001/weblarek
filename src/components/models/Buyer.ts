@@ -43,11 +43,6 @@ export class Buyer {
 
     if (hasChanges) {
       this.events.emit("data:updated", data);
-      const validationResult = {
-        errors: this.getErrors(),
-        isValid: this.isValid(),
-      };
-      this.events.emit("validation:updated", validationResult);
     }
   }
 

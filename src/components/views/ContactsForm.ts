@@ -12,7 +12,6 @@ export class ContactsForm extends Form {
     const el = this.inputs["email"] as HTMLInputElement | undefined;
     if (el) {
       el.value = value;
-      el.dispatchEvent(new Event("input", { bubbles: true }));
     }
   }
 
@@ -20,7 +19,6 @@ export class ContactsForm extends Form {
     const el = this.inputs["phone"] as HTMLInputElement | undefined;
     if (el) {
       el.value = value;
-      el.dispatchEvent(new Event("input", { bubbles: true }));
     }
   }
 }

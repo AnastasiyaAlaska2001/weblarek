@@ -108,6 +108,7 @@ const updatePreviewState = () => {
   previewCard.buttonDisabled = false;
 };
 
+
 events.on("preview:changed", () => {
   const product = productCatalog.getSelectedProduct();
   if (!product) return;
@@ -131,9 +132,10 @@ events.on("preview:toggle", () => {
   const product = productCatalog.getSelectedProduct();
   if (!product) return;
 
-  const existing = cart.getItems().find((item) => item.id === product.id);
-  if (existing) {
-    cart.removeItem(existing);
+  const existingItem = cart.isExistingItemInCart(product.id);
+
+  if (existingItem) {
+    cart.removeItem(existingItem);
   } else {
     cart.addItem(product);
   }

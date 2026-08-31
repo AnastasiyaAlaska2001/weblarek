@@ -53,4 +53,8 @@ export class ShoppingCart {
     this.events.emit("basket:cleared", previousItems);
     this.events.emit("basket:updated", []);
   }
+
+  isExistingItemInCart(productId: string): IProduct | undefined {
+    return this.getItems().find((item) => item.id === productId);
+  }
 }
